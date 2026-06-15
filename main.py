@@ -2,66 +2,93 @@ from book import Book
 from book_manager import BookManager
 
 
-def main():
-    """Main entry point for the library management system."""
-    
-    # Initialize the book manager
-    manager = BookManager()
-    
-    # Create sample books
-    book1 = Book(1, "Python 101", "John Doe")
-    book2 = Book(2, "Web Development Basics", "Jane Smith")
-    book3 = Book(3, "Data Science Guide", "Alice Johnson")
-    book4 = Book(4, "Machine Learning", "Bob Wilson")
-    
-    # Add books to the library
-    manager.add_book(book1)
-    manager.add_book(book2)
-    manager.add_book(book3)
-    manager.add_book(book4)
-    
-    print("📚 Welcome to Library Management System\n")
-    
-    # Display all books
-    manager.list_all_books()
-    
-    # Borrow some books
-    print("Borrowing 'Python 101'...")
-    if manager.borrow_book(1):
-        print("✓ Book borrowed successfully!\n")
-    
-    print("Borrowing 'Data Science Guide'...")
-    if manager.borrow_book(3):
-        print("✓ Book borrowed successfully!\n")
-    
-    # Display all books after borrowing
-    manager.list_all_books()
-    
-    # Check available books
+SAMPLE_BOOKS = [
+    (1, "Python 101", "John Doe"),
+    (2, "Web Development Basics", "Jane Smith"),
+    (3, "Data Science Guide", "Alice Johnson"),
+    (4, "Machine Learning", "Bob Wilson"),
+]
+
+BOOKS_TO_BORROW = [1, 3]
+
+
+def initialize_library(manager):
+    """Initialize the library with sample books."""
+    for book_id, title, author in SAMPLE_BOOKS:
+        book = Book(book_id, title, author)
+        manager.add_book(book)
+
+
+def borrow_books(manager, book_ids):
+    """Borrow multiple books from the library."""
+    for book_id in book_ids:
+        book = next((b for b in manager.get_available_books() if b.book_id == book_id), None)
+        if book:
+            print(f"Borrowing '{book.title}'...")
+            if manager.borrow_book(book_id):
+                print("✓ Book borrowed successfully!\n")
+
+
+def display_book_status(manager):
+    """Display the current status of available and borrowed books."""
     available = manager.get_available_books()
     print(f"Available books: {len(available)}")
     for book in available:
         print(f"  - {book.title}")
     print()
     
-    # Check borrowed books
     borrowed = manager.get_borrowed_books()
     print(f"Borrowed books: {len(borrowed)}")
     for book in borrowed:
         print(f"  - {book.title}")
     print()
-    
-    # Search by author
-    print("Searching for books by 'John Doe'...")
-    results = manager.search_by_author("John Doe")
+
+
+def search_and_display(manager, author):
+    """Search for books by author and display results."""
+    print(f"Searching for books by '{author}'...")
+    results = manager.search_by_author(author)
     for book in results:
         print(f"  - {book}")
     print()
+
+
+def return_books(manager, book_ids):
+    """Return multiple books to the library."""
+    for book_id in book_ids:
+        book = next((b for b in manager.get_borrowed_books() if b.book_id == book_id), None)
+        if book:
+            print(f"Returning '{book.title}'...")
+            if manager.return_book(book_id):
+                print("✓ Book returned successfully!\n")
+
+
+def main():
+    """Main entry point for the library management system."""
+    manager = BookManager()
     
-    # Return a book
-    print("Returning 'Python 101'...")
-    if manager.return_book(1):
-        print("✓ Book returned successfully!\n")
+    print("📚 Welcome to Library Management System\n")
+    
+    # Initialize library with sample books
+    initialize_library(manager)
+    
+    # Display all books
+    manager.list_all_books()
+    
+    # Borrow books
+    borrow_books(manager, BOOKS_TO_BORROW)
+    
+    # Display all books after borrowing
+    manager.list_all_books()
+    
+    # Display book status
+    display_book_status(manager)
+    
+    # Search by author
+    search_and_display(manager, "John Doe")
+    
+    # Return borrowed books
+    return_books(manager, BOOKS_TO_BORROW)
     
     # Final display
     manager.list_all_books()
